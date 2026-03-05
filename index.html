@@ -102,6 +102,17 @@ header{background:var(--ink);position:sticky;top:0;z-index:200;box-shadow:0 2px 
 .chip.on{background:var(--red-lt);border-color:var(--red);color:var(--red);font-weight:600}
 .chip:active{transform:scale(.95)}
 
+/* ── SLIDER DURÉE ── */
+.slider-wrap{padding:8px 2px 4px}
+.slider-row{display:flex;align-items:center;gap:14px;margin-bottom:10px}
+.slider-val{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:28px;color:var(--red);min-width:60px;line-height:1}
+.slider-val span{font-size:13px;font-weight:400;color:var(--muted);display:block;margin-top:1px}
+input[type=range].dur{flex:1;-webkit-appearance:none;appearance:none;height:6px;background:var(--line);border-radius:3px;outline:none;cursor:pointer}
+input[type=range].dur::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:24px;height:24px;border-radius:50%;background:var(--red);cursor:pointer;box-shadow:0 2px 8px rgba(227,6,19,.35);border:3px solid #fff}
+input[type=range].dur::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:var(--red);cursor:pointer;box-shadow:0 2px 8px rgba(227,6,19,.35);border:3px solid #fff}
+.slider-ticks{display:flex;justify-content:space-between;padding:0 1px}
+.slider-ticks span{font-size:10px;color:var(--muted)}
+
 /* ── NAV ── */
 .nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);padding:10px 14px;display:flex;gap:9px;box-shadow:0 -4px 18px rgba(0,0,0,.09);z-index:100}
 .btn-bk{background:none;border:2px solid var(--line);color:var(--mid);padding:12px 18px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;border-radius:3px;flex-shrink:0}
@@ -187,12 +198,15 @@ header{background:var(--ink);position:sticky;top:0;z-index:200;box-shadow:0 2px 
       <div class="qs">Temps total passé sur site</div>
     </div>
     <div class="card-b">
-      <div class="chips" id="q1c">
-        <div class="chip" onclick="p1(this,'q1','Moins de 8h')">Moins de 8h</div>
-        <div class="chip" onclick="p1(this,'q1','8–12h')">8 – 12h</div>
-        <div class="chip" onclick="p1(this,'q1','12–16h')">12 – 16h</div>
-        <div class="chip" onclick="p1(this,'q1','16–24h')">16 – 24h</div>
-        <div class="chip" onclick="p1(this,'q1','Plus de 24h')">Plus de 24h</div>
+      <div class="slider-wrap">
+        <div class="slider-row">
+          <div class="slider-val" id="q1-disp">—<span>jours</span></div>
+          <input type="range" class="dur" id="q1-slider" min="1" max="12" step="1" value="4"
+            oninput="sliderQ1(this.value)" onchange="sliderQ1(this.value)">
+        </div>
+        <div class="slider-ticks">
+          <span>1 j</span><span>3 j</span><span>6 j</span><span>9 j</span><span>12 j</span>
+        </div>
       </div>
     </div>
   </div>
@@ -481,6 +495,14 @@ function rate(k,v,btn,grid){
   }
 }
 
+function sliderQ1(v){
+  const n=parseInt(v);
+  document.getElementById('q1-disp').innerHTML=n+'<span>jours</span>';
+  A['q1']=n+' jour'+(n>1?'s':'');
+}
+// Init slider display on load
+(function(){ sliderQ1(document.getElementById('q1-slider').value); })();
+
 function p1(btn,k,v){
   btn.closest('.chips').querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
   btn.classList.add('on'); A[k]=v;
@@ -589,6 +611,7 @@ function restart(){
   document.querySelectorAll('.rb').forEach(b=>b.classList.remove('lo','mi','hi'));
   document.querySelectorAll('.cbox').forEach(b=>b.classList.remove('open'));
   document.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
+  const sl=document.getElementById('q1-slider'); if(sl){sl.value=4;sliderQ1(4);}
   document.querySelectorAll('.ta').forEach(t=>{t.value='';t.classList.remove('err');});
   go(0);
 }
